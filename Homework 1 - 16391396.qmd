@@ -110,7 +110,7 @@ ggplot(data, aes(x = Age, y = Fare, color = factor(Survived))) +
   # Log the y-axis for ease of reading
   scale_y_log10() +
   # Colour points by survival status
-  scale_color_manual(values = c("red", "green"), labels = c("Did Not Survive", "Survived")) +
+  scale_color_manual(values = c("grey", "green"), labels = c("Did Not Survive", "Survived")) +
   # Create two separate plots for male and female
   facet_wrap(~ Sex) +
   # Centre Plot Title and position legend
