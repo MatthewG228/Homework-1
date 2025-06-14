@@ -1,0 +1,121 @@
+---
+title: "Homework 1"
+author: "Matthew Gaynor- 16391396"
+format: html
+editor: visual
+---
+
+## Introduction
+
+In this document I will examine and create a visual based on the `titanic_train` dataset from the `titanic` package in R. This dataset contains $12$ columns and $891$ observations, with each observation representing a passenger on board the Titanic on it's fatal voyage, summarised by economic status, sex, age and survival. The columns in the dataset are:
+
+-   *PassengerID:* Passenger ID
+-   *Survived:* Passenger Survival Indicator
+-   *Pclass:* Passenger Class
+-   *Name:* Passenger Name
+-   *Sex:* Passenger Sex
+-   *Age:* Passenger Age
+-   *SibSp:* Number of Siblings/Spouses on board
+-   *Parch:* Number of Parents/Children on board
+-   *Ticket:* Ticket Number
+-   *Fare:* Passenger Fare
+-   *Cabin:* Cabin
+-   *Embarked:* Port of Embarkation
+
+## Reading in Data
+
+For this exercise, the primary columns of interest are whether the passengers survived, their sex, their age, and the fare they paid for their ticket. Below we can see the first few rows of these relevant columns.
+
+```{r}
+#| label: Read in Data
+#| echo: false
+#| message: false
+#| warning: false
+
+#Load in relevant libraries
+library(dplyr)
+library(titanic)
+library(ggplot2)
+
+#Output the top few rows of the dataset with selected columns
+data <- titanic_train %>%
+  select(Survived,Sex,Age,Fare)
+head(data)
+```
+
+Now that the data has been read in correctly, I will explore some of it's characteristics. The summaries show that $38$% of the passengers in the dataset survived the voyage, and that passengers ages ranged from $0$ to $80$ years old. There are $177$ null values in the age column. These passengers will not be shown in the visualisation later on. The fares paid by passengers range from \$$0$ to \$$512.33$ but three-quarters of passengers paid \$$31$ or less. There may be legitimate reasons why the fare is \$$0$ for some passengers, for example if some staff did not pay, so I will not augment this field in the data.
+
+```{r}
+#| label: Data Summary
+#| echo: false
+#| message: false
+#| warning: false
+
+#Summarise data - relevant only for numeric columns
+summary(data)
+```
+
+The summaries above are not very useful for providing any info on categorical variables or counts, so now I will look at some high-level figures:
+
+```{r}
+#| label: High-Level Stats
+#| echo: false
+#| message: false
+#| warning: false
+
+#Summarise high level observations
+stats <- data %>% 
+  summarise(
+    Total_Passengers = n(),
+    Survived = sum(Survived),
+    Did_Not_Survive = Total_Passengers - Survived,
+    Average_Age = mean(Age, na.rm = TRUE),
+    Males = sum(Sex == 'male'),
+    Females = sum(Sex == 'female'),
+    Average_Fare = mean(Fare, na.rm = TRUE)
+  )
+
+#Output Table
+knitr::kable(t(round(stats,1)))
+```
+
+Here we can see that of the $891$ passengers in the data there were $577$ males and $314$ females, and that $342$ survived compared to $549$ who did not.
+
+## Data Visualisation
+
+The below visual shows the survival status of each passenger in the data by their sex, (females in the left plot and males on the right plot), age (x-axis) and ticket fare (y-axis). There are some immediate observations around the survival status which can be seen from just looking at the visuals which stand out for each of these categories.
+
+-   **Sex:** It is clear from the two plots below that a much higher proportion of females survived compared to males.
+-   **Age:** Whilst the pattern is less immediately apparent on the female scatterplot, it is clear that a higher proportion of males below the age of about $15$ survived the Titanic compared to males above the age of $15$.
+-   **Fare:** Particularly in the female scatterplot, it can be seen that passengers who paid a higher fare for their ticket survived with much more regularity than passengers who paid a lower amount. In the male plot it is clear that almost every adult male who paiud below \$$30$ did not survive.
+
+From only examining the graphs, it appears that the cohort who had the highest survival rate were females who paid over \$$30$ for their fare, and the cohort who had the lowest survival rate were adult males who paid less than \$$30$ for theirs.
+
+```{r}
+#| label: Data Visuals
+#| echo: false
+#| message: false
+#| warning: false
+
+# Remove rows with null values
+data <- data[complete.cases(data),]
+
+# Create scatterplots for age and fare split by sex
+ggplot(data, aes(x = Age, y = Fare, color = factor(Survived))) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Age and Fare by Sex and Survival Status",
+       x = "Age",
+       y = "Fare (Log 10)",
+       color = "Survival Status") +
+  # Log the y-axis for ease of reading
+  scale_y_log10() +
+  # Colour points by survival status
+  scale_color_manual(values = c("red", "green"), labels = c("Did Not Survive", "Survived")) +
+  # Create two separate plots for male and female
+  facet_wrap(~ Sex) +
+  # Centre Plot Title and position legend
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom",
+        legend.justification = c(0.5,0))
+
+
+```
