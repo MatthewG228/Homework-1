@@ -7,7 +7,7 @@ editor: visual
 
 ## Introduction
 
-In this document I will examine and create a visual based on the `titanic_train` dataset from the `titanic` package in R. This dataset contains $12$ columns and $891$ observations, with each observation representing a passenger on board the Titanic on it's fatal voyage, summarised by economic status, sex, age and survival. The columns in the dataset are:
+In this report I will examine and create a visual based on the `titanic_train` dataset from the `titanic` package in R. This dataset contains $12$ columns and $891$ observations, with each observation representing a passenger on board the Titanic on it's fatal voyage, summarised by economic status, sex, age and survival. The columns in the dataset are:
 
 -   *PassengerID:* Passenger ID
 -   *Survived:* Passenger Survival Indicator
